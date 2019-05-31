@@ -18,7 +18,7 @@ class App extends React.Component {
     const data = new FormData();
     data.append("file", this.uploadInput.files[0]);
 
-    fetch("https://find-locations.herokuapp.com/upload", {
+    fetch("http://localhost:5000/upload", {
       method: "POST",
       body: data
     })
@@ -28,6 +28,8 @@ class App extends React.Component {
       .then(data => {
         console.log(data);
         this.setState({ list: data.list, condition: data.condition });
+      }).catch((error) => {
+        console.log(error);
       });
   }
 
@@ -38,7 +40,7 @@ class App extends React.Component {
     var data = {
       name: label
     };
-    fetch("https://find-locations.herokuapp.com/upload/diffloc", {
+    fetch("http://localhost:5000/upload/diffloc", {
       method: "POST",
       body: JSON.stringify(data)
     })
@@ -48,6 +50,8 @@ class App extends React.Component {
       .then(data => {
         console.log(data);
         this.setState({ list: data.list, condition: data.condition });
+      }).catch((error) => {
+        console.log(error);
       });
   }
   sameName() {
