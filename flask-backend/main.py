@@ -66,8 +66,9 @@ def getvalue():
         # if file.filename == '':
         #     flash('No selected file')
         if file and allowed_file(file.filename):
-            filename = "hello"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            paragraph = file.read().decode('utf-8')
+            # filename = "hello"
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     global locations    
     locations = []
     global output
@@ -76,8 +77,8 @@ def getvalue():
     placename = ''
     global upname
     upname = ''
-    f = open("hello",'r')
-    paragraph = f.read()
+    # f = open("hello",'r')
+    # paragraph = f.read()
     import pandas as pd
     stop_words = set(stopwords.words('english'))
     word_tokens = word_tokenize(paragraph)
