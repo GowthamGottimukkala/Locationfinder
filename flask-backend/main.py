@@ -17,6 +17,38 @@ CORS(app)
 app.secret_key = "super secret key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
+data = pd.read_excel("ap2.xls")
+
+req = list(data.loc[:, 'Name of City'])
+req2 = data[['Name of City', 'State']]
+samenames = pd.concat(g for _, g in req2.groupby("Name of City") if len(g) > 1)
+#######
+dic2 = {}
+for row in samenames.iterrows():
+    key = row[1][0]
+    value = row[1][1]
+    if key in dic2:
+        dic2[key].append(value)
+    else:
+        dic2[key] = []
+        dic2[key].append(value)
+####### To Identify Multi-worded Cities #######
+# Trail-4
+req.sort()
+res = [list(i) for j, i in groupby(req,
+                                   lambda a: a.split(' ')[0])]
+dic = {}
+for lis in res:
+    dic[lis[0]] = lis[1:]
+
+locations = []
+output = {}
+placename = ''
+upname = ''
+
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -36,57 +68,20 @@ def getvalue():
         if file and allowed_file(file.filename):
             filename = "hello"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            
+    global locations    
+    locations = []
+    global output
+    output = {}
+    global placename
+    placename = ''
+    global upname
+    upname = ''
     f = open("hello",'r')
     paragraph = f.read()
-    # paragraph = "i'm from Ranchi"
     import pandas as pd
     stop_words = set(stopwords.words('english'))
-    placename = ''
-    upname = ''
-    data = pd.read_excel("ap2.xls")
-    print("Enter the paragraph to find locations:")
-    # paragraph = "I'm from Srinagar"
     word_tokens = word_tokenize(paragraph)
     filtered_para = [w for w in word_tokens if not w in stop_words]
-    req = list(data.loc[:, 'Name of City'])
-    req2 = data[['Name of City', 'State']]
-    samenames = pd.concat(g for _, g in req2.groupby("Name of City") if len(g) > 1)
-
-    #######
-    dic2 = {}
-    for row in samenames.iterrows():
-        key = row[1][0]
-        value = row[1][1]
-        if key in dic2:
-            dic2[key].append(value)
-        else:
-            dic2[key] = []
-            dic2[key].append(value)
-
-######################################################################################################33##################################################
-    def same(location):
-        print("In which among the following is the " + location)
-        for word in dic2[location]:
-            print(word)
-        while True:
-            upperlevel = input()
-            if upperlevel in dic2[location]:
-                break
-            else:
-                print("Something's wrong.. Enter Again")
-        return [location, upperlevel]
-
-
-    ####### To Identify Multi-worded Cities #######
-    # Trail-4
-    req.sort()
-    res = [list(i) for j, i in groupby(req,
-                                       lambda a: a.split(' ')[0])]
-    dic = {}
-    for lis in res:
-        dic[lis[0]] = lis[1:]
-
 
     def intel(location):
         for word in dic[location]:
@@ -95,9 +90,7 @@ def getvalue():
         return location
     ################################################
 
-
-    locations = []
-    closelist = []
+    # closelist = []
     index = 0
     prem = 0
     for word in filtered_para:
@@ -107,77 +100,78 @@ def getvalue():
                 locations.append(intel(word))
                 break
 
-######################################################################################################33##################################################
         # Spellings
         if prem == 0:
             closelist = difflib.get_close_matches(word, req, 2, 0.8)
             if len(closelist) != 0:
-                for i in range(len(closelist)):
-                    print("Is it " + str(closelist[i]) + '?')
-                    print("yes/no :")
-                    close = input()
-                    if close == 'yes':
-                        locations.append(closelist[i])
+                locations.append(closelist[0])
         prem = 0
 
-
-    for index, name in enumerate(locations):
-        if name in dic2:
-            locations[index] = same(name)
-
-    # Only 1 location found
+    # Only 1 location found 
     if len(locations) == 1:
-        if isinstance(locations[0], list):
-            placename = locations[0][0]
-            upname = locations[0][1]
-            print("You live in " + locations[0][0] + ', ' + locations[0][1])
+        if locations[0] in dic2:
+            output["condition"] = 2
+            thislist = []
+            thislist = dic2[locations[0]]
+            thislist.append(locations[0])
+            output["list"] = thislist
+            return Response(json.dumps(output),  mimetype='application/json')
         else:
             placename = locations[0]
             index = data[data['Name of City'] == locations[0]].index.item()
-            print("You live in " + locations[0] + ', ' + data.loc[index, "State"])
             upname = data.loc[index, "State"]
-            
+            llist = []
+            llist.append(placename)
+            llist.append(upname)
+            output["condition"] = 1
+            output["list"] = llist
+            return Response(json.dumps(output),  mimetype='application/json')
 
     # Morethan 1 locations found
     elif len(locations) >= 1:
-######################################################################################################33##################################################
         print("I got two locations")
         print("Which among the following")
-        for name in locations:
-            if isinstance(name, list):
-                print(str(name[0]))
-            else:
-                print(str(name))
-        while True:
-            final = input()
-            for lis in locations:
-                if isinstance(lis, list):
-                    if lis[0] == final:
-                        placename = lis[0]
-                        upname = lis[1]
-                        print("You live in " + lis[0] + ', ' + lis[1])
-                        break
-                else:
-                    if lis == final:
-                        placename = lis
-                        index = data[data['Name of City'] == final].index.item()
-                        print("You live in " + lis + ', ' +
-                              data.loc[index, "State"])
-                        upname = data.loc[index, "State"]
-                        break
+        output["condition"] = 3
+        output["list"] = locations
+        return Response(json.dumps(output),  mimetype='application/json')
 
-            else:
-                print("Somethings's wrong.. Enter again")
-                continue
-            break
     else:
-        print("No locations found")
-    # return render_template('index.html', n=str(placename), m=str(upname))
-    data ={}
-    data["pn"] = str(placename)
-    data["un"] = str(upname)
+        output["condition"] = 4
+        ping = []
+        output["list"] = ping
+        return Response(json.dumps(output),  mimetype='application/json')
 
-    return Response(json.dumps(data),  mimetype='application/json')
+@app.route('/upload/diffloc', methods=['POST'])
+def getvalues():
+    if request.method == 'POST':
+        global locations    
+        global output
+        output = {}
+        global placename
+        global upname
+        json_data = json.loads(request.data)
+        final = str(json_data["name"])
+        # final = res.data
+        if final in dic2:
+            output["condition"] = 2
+            thislist = []
+            thislist = dic2[final]
+            thislist.append(final)
+            output["list"] = thislist
+            return Response(json.dumps(output),  mimetype='application/json')
+        else:
+            placename = final
+            print(final)
+            index = data[data['Name of City'] == final].index.item()
+            upname = data.loc[index, "State"]
+            print(upname)
+            llist = []
+            llist.append(placename)
+            llist.append(upname)
+            output["condition"] = 1
+            output["list"] = llist
+            return Response(json.dumps(output),  mimetype='application/json')
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
