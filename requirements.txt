@@ -10,10 +10,10 @@ Flask_Cors == 3.0.7
 # flask-backend/main.py: 4
 Werkzeug == 0.15.4
 
-# flask-backend/main.py: 5,6
+# flask-backend/main.py: 5,6,12
 nltk == 3.4.1
 
-# flask-backend/main.py: 10,81
+# flask-backend/main.py: 10,86
 pandas == 0.24.2
 
 # flask-backend/main.py: 9

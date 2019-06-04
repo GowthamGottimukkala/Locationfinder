@@ -18,7 +18,7 @@ class App extends React.Component {
     const data = new FormData();
     data.append("file", this.uploadInput.files[0]);
 
-    fetch("http://localhost:5000/upload", {
+    fetch("https://find-locations.herokuapp.com/upload", {
       method: "POST",
       body: data
     })
@@ -40,7 +40,7 @@ class App extends React.Component {
     var data = {
       name: label
     };
-    fetch("http://localhost:5000/upload/diffloc", {
+    fetch("https://find-locations.herokuapp.com/upload/diffloc", {
       method: "POST",
       body: JSON.stringify(data)
     })
