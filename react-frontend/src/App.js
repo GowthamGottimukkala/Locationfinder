@@ -1,5 +1,6 @@
 import React from "react";
 import "./App.css";
+import ShowonMap from "./ShowonMap";
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -28,7 +29,8 @@ class App extends React.Component {
       .then(data => {
         console.log(data);
         this.setState({ list: data.list, condition: data.condition });
-      }).catch((error) => {
+      })
+      .catch(error => {
         console.log(error);
       });
   }
@@ -50,7 +52,8 @@ class App extends React.Component {
       .then(data => {
         console.log(data);
         this.setState({ list: data.list, condition: data.condition });
-      }).catch((error) => {
+      })
+      .catch(error => {
         console.log(error);
       });
   }
@@ -59,12 +62,31 @@ class App extends React.Component {
     var label = e.options[e.selectedIndex].text;
     document.getElementById("samename").innerHTML = "";
     var node = document.createElement("h1");
-    var textnode = document.createTextNode("You live in " + this.state.list[this.state.list.length-1] + ", " + label);
+    var textnode = document.createTextNode(
+      "You live in " +
+        this.state.list[this.state.list.length - 1] +
+        ", " +
+        label
+    );
     node.appendChild(textnode);
     document.getElementById("samename").appendChild(node);
   }
 
   render() {
+    // var newDiv = document.createElement("div");
+    // var selectHTML = "";
+    // selectHTML = "<select id=myselect";
+    // selectHTML += "<option selected disabled hidden>Choose here</option>"
+    // var i;
+    // for (i = 0; i < this.state.list.length; i = i + 1) {
+    //   selectHTML +=
+    //     "<option value='" + i + "'>" + this.state.list[i] + "</option>";
+    // }
+    // selectHTML += "</select>";
+    // selectHTML += '<button type="button" onClick={this.sameName}>Submit</button>'
+    // newDiv.innerHTML = selectHTML;
+    // document.getElementById("samename").appendChild(newDiv);
+
     return (
       <div className="container">
         <div className="row heading">
@@ -90,19 +112,22 @@ class App extends React.Component {
               You live in {this.state.list[0]} and in the state{" "}
               {this.state.list[1]}{" "}
             </h1>
+            <div className="marked">
+              <ShowonMap place={this.state.list[0]} />
+            </div>
           </div>
         )}
         {this.state.condition == 2 && (
           <div className="row heading2" id="samename">
             <h1>Which state among the following do you live in?</h1>
-            <form>
-              <select id="myselect">
+           <form id="mine">
+               <select id="myselect">
                 <option selected disabled hidden>
                   Choose here
                 </option>
                 <option value="1">{this.state.list[0]}</option>
                 <option value="2">{this.state.list[1]}</option>
-              </select>
+              </select> 
               <button type="button" onClick={this.sameName}>
                 Submit
               </button>
